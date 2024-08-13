@@ -1,13 +1,15 @@
 # Gymnasium Environment Explorer
 
 ## Overview
-This project provides a graphical user interface (GUI) for exploring registered environments in the Gymnasium library (formerly OpenAI Gym). It allows users to quickly search through available environments, view their specifications, and examine detailed information about each environment's action space, observation space, and reward range.
+This project provides a graphical user interface (GUI) for exploring registered environments in the Gymnasium library (formerly OpenAI Gym). It allows users to quickly search through available environments, view their specifications, examine detailed information about each environment's action space, observation space, and reward range, and even play supported environments with customizable key mappings.
 
 ## Features
 - Real-time search functionality to filter Gymnasium environments
 - Display of detailed environment specifications, including action space, observation space, and reward range
 - Interactive GUI built with Tkinter, featuring a responsive layout
 - Scrollbars for improved user experience
+- Custom key mapping for playing supported environments
+- Support for no-op actions in playable environments
 
 ## Prerequisites
 To run this project, you need to have the following installed:
@@ -31,20 +33,27 @@ To run this project, you need to have the following installed:
 2. Use the search bar at the top to filter environments in real-time.
 3. Click on an environment in the list to view its detailed specifications.
 4. Scroll through the environment details in the right panel.
+5. To play a supported environment, select it and click the "Play Selected Environment" button.
+6. In the key mapping dialog, customize the controls or use the preset mappings.
 
 ## How it Works
 1. The script uses Gymnasium's registry to get a list of all available environments.
 2. It creates a GUI using Tkinter, with a search bar, a listbox for environments, and a text area for detailed specifications.
 3. As you type in the search bar, it filters the list of environments in real-time.
 4. When you select an environment, it creates an instance of that environment to retrieve detailed information about its action space, observation space, and reward range.
-5. The detailed information is displayed in the text area, along with other specifications from the environment.
-6. The environment is closed.
+5. The detailed information is displayed in the text area, along with other specifications from the environment, and the environment is closed.
+6. For playable environments, it creates a custom key mapping dialog and uses Gymnasium's play utility to run the environment.
+
+## Limitations
+- Only works with environments that support 'rgb_array' render mode for play functionality
+- Complex action spaces may not be fully supported for play functionality
 
 ## Potential Extensions
-- Implement a simple agent (e.g., random action) or user-play function to interact with environments
+- Implement a simple agent (e.g., random action) to interact with environments
 - Add functionality to rename environments (environment ids, namespaces, etc.) or update the registry
 - Add visualization capabilities for supported environments
 - Implement functionality to compare multiple environments side by side
+- Support for continuous action spaces in play functionality
 
 ## Learning Outcomes
 Through this project, I gained:
@@ -53,3 +62,4 @@ Through this project, I gained:
 - Experience in creating responsive and user-friendly graphical interfaces with Tkinter
 - Practice in working with Python's object-oriented features and event-driven programming
 - Skills in handling and displaying complex, nested data structures
+- Experience in implementing custom dialog boxes and user input handling
