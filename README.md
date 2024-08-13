@@ -10,7 +10,7 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
 
 ### [Project 1: Gymnasium Environment Explorer](./gymnasium-environment-explorer)
 - A GUI application for exploring and interacting with Gymnasium (formerly OpenAI Gym) environments
-- Technologies used: Python, Tkinter, Gymnasium
+- Technologies used: Python, Tkinter, Gymnasium, Matplotlib
 - Features:
   - Real-time search functionality for Gymnasium environments
   - Detailed display of environment specifications, including action space, observation space, and reward range
@@ -18,6 +18,7 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
   - Custom key mapping for playing supported environments
   - Support for no-op actions in playable environments
   - Random agent functionality with customizable run options
+  - Visualization of observation spaces for fundamental Gymnasium spaces and composite spaces
 - Learned about:
   - Reinforcement learning environments and their structure
   - GUI development with Tkinter
@@ -26,6 +27,7 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
   - Implementing custom dialog boxes and user input handling
   - Using Gymnasium's play utility for environment interaction
   - Implementing and running random agents in various modes
+  - Data visualization techniques for various types of observation spaces
 
 ### [Project 2: Name of Second Project] (Coming Soon)
 - Brief description of what this project will demonstrate
@@ -36,6 +38,7 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
 - Python
 - Gymnasium (formerly OpenAI Gym)
 - Tkinter (GUI Development)
+- Matplotlib (Data Visualization)
 - Object-Oriented Programming
 - Event-Driven Programming
 - Data Structure Manipulation

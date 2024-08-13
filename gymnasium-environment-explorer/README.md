@@ -1,7 +1,7 @@
 # Gymnasium Environment Explorer
 
 ## Overview
-This project provides a graphical user interface (GUI) for exploring registered environments in the Gymnasium library (formerly OpenAI Gym). It allows users to quickly search through available environments, view their specifications, examine detailed information about each environment's action space, observation space, and reward range, play supported environments with customizable key mappings, and run random agents.
+This project provides a graphical user interface (GUI) for exploring registered environments in the Gymnasium library (formerly OpenAI Gym). It allows users to quickly search through available environments, view their specifications, examine detailed information about each environment's action space, observation space, and reward range, play supported environments with customizable key mappings, run random agents, and visualize observation spaces.
 
 ## Features
 - Real-time search functionality to filter Gymnasium environments
@@ -11,19 +11,21 @@ This project provides a graphical user interface (GUI) for exploring registered 
 - Custom key mapping for playing supported environments
 - Support for no-op actions in playable environments
 - Random agent functionality with customizable run options
+- Visualization of observation spaces for fundamental Gymnasium spaces and composite spaces
 
 ## Prerequisites
 To run this project, you need to have the following installed:
 - Python
 - Gymnasium
 - Tkinter (usually comes pre-installed with new versions of Python)
+- Matplotlib
 - Some environments may require additional dependencies, such as Box2D, Pygame, or MuJoCo.
 
 ## Installation
 1. Clone this repository or download the source code.
 2. Install the required packages:
    ```
-   pip install gymnasium
+   pip install gymnasium matplotlib
    ```
 
 ## Usage
@@ -40,6 +42,9 @@ To run this project, you need to have the following installed:
 6. To run a random agent:
    - Select an environment and click the "Run Random Agent" button.
    - Choose the run mode (continuous, steps, or episodes) and set parameters in the dialog.
+7. To visualize the observation space:
+   - Select an environment and click the "Visualize Observation Space" button.
+   - Choose between a random sample or an initialized environment observation.
 
 ## How it Works
 1. The script uses Gymnasium's registry to get a list of all available environments.
@@ -53,10 +58,11 @@ To run this project, you need to have the following installed:
 ## Limitations
 - Only works with environments that support 'rgb_array' render mode for play functionality
 - Complex action spaces may not be fully supported for play functionality
+- Visualization may not be optimal for all types of observation spaces
 
 ## Potential Extensions
 - Add functionality to rename environments (environment ids, namespaces, etc.) or update the registry
-- Add visualization capabilities for supported environments
+- Add more visualization capabilities for supported environments
 - Implement functionality to compare multiple environments side by side
 - Support for continuous action spaces in play functionality
 - Implement more sophisticated AI agents (e.g., Q-learning, policy gradients, baselines)

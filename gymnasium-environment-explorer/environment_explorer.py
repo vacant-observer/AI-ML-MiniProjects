@@ -1,9 +1,10 @@
 import gymnasium
-import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox, simpledialog
-from tkinter.ttk import *
 from gymnasium.utils.play import play
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import tkinter as tk
+from tkinter import messagebox, simpledialog, ttk
+from tkinter.ttk import *
 
 # Function to update the listbox based on the search term
 def search_listbox(*args):
@@ -171,7 +172,7 @@ def run_random_agent(env, mode, steps, episodes, render):
 def run_random_agent_for_environment():
     selection = listbox.curselection()
     if selection:
-        selected_env = listbox.get(selection[0])
+        selected_env = listbox.get(selection)
         dialog = RandomAgentDialog(window, "Random Agent Settings")
         if dialog.result:
             mode, steps, episodes, render = dialog.result
@@ -199,21 +200,161 @@ class RandomAgentDialog(simpledialog.Dialog):
 
     def body(self, frame):
         # Create UI elements for setting agent parameters
+        # Create UI radio buttons for selecting run mode
         ttk.Radiobutton(frame, text="Run continuously", variable=self.mode, value="continuous").grid(row=0, column=0, sticky="w")
         ttk.Radiobutton(frame, text="Run for specific steps", variable=self.mode, value="steps").grid(row=1, column=0, sticky="w")
         ttk.Radiobutton(frame, text="Run for specific episodes", variable=self.mode, value="episodes").grid(row=2, column=0, sticky="w")
         
+        # Create UI label and entry for setting the number of steps
         ttk.Label(frame, text="Number of steps:").grid(row=1, column=1)
         ttk.Entry(frame, textvariable=self.steps, width=10).grid(row=1, column=2)
         
+        # Create UI label and entry for setting the number of episodes
         ttk.Label(frame, text="Number of episodes:").grid(row=2, column=1)
         ttk.Entry(frame, textvariable=self.episodes, width=10).grid(row=2, column=2)
 
+        # Create UI checkbox for optionally rendering the environment
         ttk.Checkbutton(frame, text="Render environment", variable=self.render).grid(row=3, column=0, columnspan=3, sticky="w")
 
     def apply(self):
         # Collect the settings when the user clicks OK
         self.result = (self.mode.get(), self.steps.get(), self.episodes.get(), self.render.get())
+
+# Function to visualize the observation space of the selected environment
+def visualize_environment():
+    selection = listbox.curselection()
+    if selection:
+        selected_env = listbox.get(selection)
+        try:
+            # Create the environment
+            env = gymnasium.make(selected_env)
+
+            # Ask user to choose between sample() and reset()
+            choice = simpledialog.askstring("Observation Source",
+                                            "Choose observation source:\n1. Random sample from space\n2. Initialized environment",
+                                            initialvalue="1")
+            
+            # Get the observation based on user choice
+            if choice == "1":
+                observation = env.observation_space.sample()
+            elif choice == "2":
+                observation, _ = env.reset()
+            else:
+                messagebox.showwarning("Invalid Choice", "Invalid choice.")
+                return
+
+            env.close()
+            
+            # Create a new window for visualization
+            viz_window = tk.Toplevel(window)
+            viz_window.title(f"Visualization: {selected_env}")
+            
+            fig, ax = plt.subplots(figsize=(8, 6))
+            
+            # Function to visualize different types of spaces
+            def visualize_space(space, obs, ax, title=''):
+                # Visualize Box space
+                if isinstance(space, gymnasium.spaces.Box):
+                    if len(obs.shape) == 1:  # 1D observation
+                        ax.bar(range(len(obs)), obs)
+                        ax.set_xlabel('Observation Index')
+                        ax.set_ylabel('Value')
+                    elif len(obs.shape) == 2:  # 2D observation (image-like)
+                        ax.imshow(obs, cmap='viridis')
+                        ax.axis('off')
+                    elif len(obs.shape) == 3:  # 3D observation (RGB image)
+                        ax.imshow(obs)
+                        ax.axis('off')
+                    else:  # Higher dimensional Box
+                        ax.text(0.5, 0.5, f"Box Space\nShape: {obs.shape}\nLow: {space.low}\nHigh: {space.high}", 
+                                ha='center', va='center')
+                        ax.axis('off')
+                
+                # Visualize Discrete space
+                elif isinstance(space, gymnasium.spaces.Discrete):
+                    ax.bar(['Observation'], [obs])
+                    ax.set_ylabel('Value')
+                    ax.set_title(f"{title}\nDiscrete Space\nn: {space.n}, start: {space.start}")
+                
+                # Visualize MultiBinary space
+                elif isinstance(space, gymnasium.spaces.MultiBinary):
+                    ax.imshow(obs.reshape(-1, 1), cmap='binary', aspect='auto')
+                    ax.set_title(f"{title}\nMultiBinary Space\nShape: {space.shape}")
+                    ax.set_xlabel('Value (Black: 0, White: 1)')
+                    ax.set_yticks(range(len(obs)))
+                    ax.set_yticklabels(range(len(obs)))
+                
+                # Visualize MultiDiscrete space
+                elif isinstance(space, gymnasium.spaces.MultiDiscrete):
+                    ax.bar(range(len(obs)), obs)
+                    ax.set_xlabel('Dimension')
+                    ax.set_ylabel('Value')
+                    ax.set_title(f"{title}\nMultiDiscrete Space\nnvec: {space.nvec}")
+                    ax.set_xticks(range(len(obs)))
+                
+                # Visualize Text space
+                elif isinstance(space, gymnasium.spaces.Text):
+                    ax.text(0.5, 0.5, f"{title}\nText Space\nObservation: '{obs}'\nCharset: {space.charset}\nLength: {len(obs)}/{space.max_length}", 
+                            ha='center', va='center')
+                    ax.axis('off')
+                
+                # Visualize Dict space
+                elif isinstance(space, gymnasium.spaces.Dict):
+                    ax.text(0.5, 0.5, f"{title}\nDict Space\nKeys: {list(space.spaces.keys())}\nObservation: {obs}", 
+                            ha='center', va='center')
+                    ax.axis('off')
+                
+                # Visualize Tuple space
+                elif isinstance(space, gymnasium.spaces.Tuple):
+                    ax.text(0.5, 0.5, f"{title}\nTuple Space\nLength: {len(space.spaces)}\nObservation: {obs}", 
+                            ha='center', va='center')
+                    ax.axis('off')
+                
+                # Visualize Sequence space
+                elif isinstance(space, gymnasium.spaces.Sequence):
+                    ax.text(0.5, 0.5, f"{title}\nSequence Space\nBase Space: {space.feature_space}\nObservation Length: {len(obs)}", 
+                            ha='center', va='center')
+                    ax.axis('off')
+                
+                # Visualize Graph space
+                elif isinstance(space, gymnasium.spaces.Graph):
+                    if isinstance(obs, gymnasium.spaces.GraphInstance):
+                        ax.text(0.5, 0.5, f"{title}\nGraph Space\nNodes: {obs.nodes.shape}\nEdges: {obs.edges.shape if obs.edges is not None else 'None'}\nEdge Links: {obs.edge_links.shape}", 
+                                ha='center', va='center')
+                    else:
+                        ax.text(0.5, 0.5, f"{title}\nGraph Space\nObservation: {obs}", 
+                                ha='center', va='center')
+                    ax.axis('off')
+                
+                # Visualize Unsupported space type
+                else:
+                    ax.text(0.5, 0.5, f"{title}\nUnsupported Space Type: {type(space)}\nObservation: {obs}", 
+                            ha='center', va='center')
+                    ax.axis('off')
+            
+            # Handle different types of observation spaces
+            if isinstance(env.observation_space, gymnasium.spaces.Dict):
+                rows = len(env.observation_space.spaces)
+                fig, axs = plt.subplots(rows, 1, figsize=(8, 6*rows))
+                for i, (key, space) in enumerate(env.observation_space.spaces.items()):
+                    visualize_space(space, observation[key], axs[i] if rows > 1 else axs, title=f"{key}")
+            elif isinstance(env.observation_space, gymnasium.spaces.Tuple):
+                rows = len(env.observation_space.spaces)
+                fig, axs = plt.subplots(rows, 1, figsize=(8, 6*rows))
+                for i, (space, obs) in enumerate(zip(env.observation_space.spaces, observation)):
+                    visualize_space(space, obs, axs[i] if rows > 1 else axs, title=f"Element {i}")
+            else:
+                visualize_space(env.observation_space, observation, ax)
+            
+            # Create and display the matplotlib canvas
+            canvas = FigureCanvasTkAgg(fig, master=viz_window)
+            canvas.draw()
+            canvas.get_tk_widget().pack()
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Unable to visualize environment: {str(e)}")
+    else:
+        messagebox.showwarning("No Environment Selected", "Please select an environment from the list.")
 
 # Create the main window
 window = tk.Tk()
@@ -284,11 +425,16 @@ play_button.grid(row=0, column=0, padx=(0, 5))
 
 # Add Random Agent button
 random_agent_button = ttk.Button(button_frame, text="Run Random Agent", command=run_random_agent_for_environment)
-random_agent_button.grid(row=0, column=1, padx=(5, 0))
+random_agent_button.grid(row=0, column=1, padx=(5, 5))
+
+# Add Visualize button
+visualize_button = ttk.Button(button_frame, text="Visualize Observation Space", command=visualize_environment)
+visualize_button.grid(row=0, column=2, padx=(5, 0))
 
 # Configure the columns in the button frame to have equal weight
 button_frame.columnconfigure(0, weight=1)
 button_frame.columnconfigure(1, weight=1)
+button_frame.columnconfigure(2, weight=1)
 
 # Populate the listbox initially
 search_listbox()
