@@ -30,6 +30,7 @@ def get_env_spec(event):
         
         env.close()  # Close the environment to free up resources
 
+# Dialog for setting up key mappings for playing environments
 class KeyMappingDialog(simpledialog.Dialog):
     def __init__(self, parent, title, action_space):
         self.action_space = action_space
@@ -38,6 +39,7 @@ class KeyMappingDialog(simpledialog.Dialog):
         super().__init__(parent, title)
 
     def body(self, frame):
+        # Create UI elements for no-op action and key mappings
         # No-op action entry
         ttk.Label(frame, text="No-op (no action) [action index]:").grid(row=0, column=0)
         self.noop_entry = ttk.Entry(frame, width=5)
@@ -67,12 +69,14 @@ class KeyMappingDialog(simpledialog.Dialog):
         self.result = {i: entry.get() for i, entry in self.mappings.items() if entry.get()}
         self.noop_action = int(self.noop_entry.get())
 
+# Function to get key mapping for a specific environment
 def get_key_mapping(env_id):
+    # Create environment, get action space, and close immediately
     env = gymnasium.make(env_id)
     action_space = env.action_space
     env.close()
     
-    # Check if the action space is discrete
+    # Handle key mapping for discrete action spaces
     if isinstance(action_space, gymnasium.spaces.Discrete):
         # Create a dialog for key mapping for discrete action spaces
         dialog = KeyMappingDialog(window, "Key Mapping", action_space)
@@ -80,10 +84,11 @@ def get_key_mapping(env_id):
             # Convert the key mappings to a dictionary
             key_to_action = {v: k for k, v in dialog.result.items()}
             return key_to_action, dialog.noop_action
-        return None, None
-    else:
-        return None, None
+        
+    # Return None for non-discrete action spaces
+    return None, None
 
+# Function to play the selected environment with key mappings and no-op action
 def play_environment():
     # Get the selected environment from the listbox
     selection = listbox.curselection()
@@ -110,6 +115,105 @@ def play_environment():
     else:
         # If no environment is selected, show a warning
         messagebox.showwarning("No Environment Selected", "Please select an environment from the list.")
+
+# Function to run a random agent in the environment
+def run_random_agent(env, mode, steps, episodes, render):
+    total_reward = 0
+    episode_count = 0
+    step_count = 0
+    
+    while True:
+        observation, info = env.reset()
+        episode_reward = 0
+        
+        while True:
+            # Render if option is selected
+            if render:
+                env.render()
+
+            # Take a random action
+            action = env.action_space.sample()
+
+            # Perform the action and get the result
+            observation, reward, terminated, truncated, info = env.step(action)
+            episode_reward += reward
+            step_count += 1
+
+            # Check if the episode has ended
+            if terminated or truncated:
+                break
+
+            # Check if we've reached the step limit (if in step mode)
+            if mode == "steps" and step_count >= int(steps):
+                env.close()
+                messagebox.showinfo("Random Agent Results", f"Total reward over {step_count} steps: {total_reward}")
+                return
+
+        # Update total reward and episode count
+        total_reward += episode_reward
+        episode_count += 1
+
+        # Check if we've reached the episode limit (if in episode mode)
+        if mode == "episodes" and episode_count >= int(episodes):
+            env.close()
+            messagebox.showinfo("Random Agent Results", f"Total reward over {episode_count} episodes: {total_reward}")
+            return
+
+        # For continuous mode, ask if the user wants to continue after each episode
+        if mode == "continuous":
+            should_continue = messagebox.askyesno("Continue?", f"Episode {episode_count} finished. Total reward so far: {total_reward}. Continue?")
+            if not should_continue:
+                env.close()
+                messagebox.showinfo("Random Agent Results", f"Total reward over {episode_count} episodes: {total_reward}")
+                return
+
+# Function to set up and run the random agent for the selected environment
+def run_random_agent_for_environment():
+    selection = listbox.curselection()
+    if selection:
+        selected_env = listbox.get(selection[0])
+        dialog = RandomAgentDialog(window, "Random Agent Settings")
+        if dialog.result:
+            mode, steps, episodes, render = dialog.result
+            try:
+                # Create environment with appropriate render mode
+                env = gymnasium.make(selected_env, render_mode="human" if render else None)
+                run_random_agent(env, mode, steps, episodes, render)
+            except Exception as e:
+                messagebox.showerror("Error", f"Unable to run random agent: {str(e)}")
+            finally:
+                if 'env' in locals():
+                    env.close()
+    else:
+        messagebox.showwarning("No Environment Selected", "Please select an environment from the list.")
+
+# Dialog for setting up random agent parameters
+class RandomAgentDialog(simpledialog.Dialog):
+    def __init__(self, parent, title):
+        # Initialize variables for agent settings
+        self.mode = tk.StringVar(value="continuous")
+        self.steps = tk.StringVar(value="1000")
+        self.episodes = tk.StringVar(value="10")
+        self.render = tk.BooleanVar(value=True)
+        super().__init__(parent, title)
+
+    def body(self, frame):
+        # Create UI elements for setting agent parameters
+        ttk.Radiobutton(frame, text="Run continuously", variable=self.mode, value="continuous").grid(row=0, column=0, sticky="w")
+        ttk.Radiobutton(frame, text="Run for specific steps", variable=self.mode, value="steps").grid(row=1, column=0, sticky="w")
+        ttk.Radiobutton(frame, text="Run for specific episodes", variable=self.mode, value="episodes").grid(row=2, column=0, sticky="w")
+        
+        ttk.Label(frame, text="Number of steps:").grid(row=1, column=1)
+        ttk.Entry(frame, textvariable=self.steps, width=10).grid(row=1, column=2)
+        
+        ttk.Label(frame, text="Number of episodes:").grid(row=2, column=1)
+        ttk.Entry(frame, textvariable=self.episodes, width=10).grid(row=2, column=2)
+
+        ttk.Checkbutton(frame, text="Render environment", variable=self.render).grid(row=3, column=0, columnspan=3, sticky="w")
+
+    def apply(self):
+        # Collect the settings when the user clicks OK
+        self.result = (self.mode.get(), self.steps.get(), self.episodes.get(), self.render.get())
 
 # Create the main window
 window = tk.Tk()
@@ -170,9 +274,21 @@ text_scrollbar = ttk.Scrollbar(text_frame, orient="vertical", command=env_spec_t
 text_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 env_spec_text.config(yscrollcommand=text_scrollbar.set)
 
+# Create a frame for the buttons
+button_frame = ttk.Frame(frame)
+button_frame.grid(row=4, column=0, columnspan=2, pady=10)
+
 # Add Play button
-play_button = ttk.Button(frame, text="Play Selected Environment", command=play_environment)
-play_button.grid(row=4, column=0, columnspan=2, pady=10)
+play_button = ttk.Button(button_frame, text="Play Selected Environment", command=play_environment)
+play_button.grid(row=0, column=0, padx=(0, 5))
+
+# Add Random Agent button
+random_agent_button = ttk.Button(button_frame, text="Run Random Agent", command=run_random_agent_for_environment)
+random_agent_button.grid(row=0, column=1, padx=(5, 0))
+
+# Configure the columns in the button frame to have equal weight
+button_frame.columnconfigure(0, weight=1)
+button_frame.columnconfigure(1, weight=1)
 
 # Populate the listbox initially
 search_listbox()

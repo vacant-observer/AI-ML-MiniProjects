@@ -17,6 +17,7 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
   - Interactive and responsive GUI
   - Custom key mapping for playing supported environments
   - Support for no-op actions in playable environments
+  - Random agent functionality with customizable run options
 - Learned about:
   - Reinforcement learning environments and their structure
   - GUI development with Tkinter
@@ -24,6 +25,7 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
   - Handling complex data structures in Python
   - Implementing custom dialog boxes and user input handling
   - Using Gymnasium's play utility for environment interaction
+  - Implementing and running random agents in various modes
 
 ### [Project 2: Name of Second Project] (Coming Soon)
 - Brief description of what this project will demonstrate
@@ -42,12 +44,13 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
 - Reinforcement Learning Concepts
 - Data Analysis
 - Machine Learning Algorithms
+- Random Agent Implementation
 - Custom Dialog Creation
 - User Input Handling and Validation
 - Software Documentation
 
 ## Future Learning Goals
-- Implement AI agents to interact with Gymnasium environments
+- Implement more sophisticated AI agents (e.g., Q-learning, policy gradients, baselines) to interact with Gymnasium environments
 - Explore deep learning frameworks like TensorFlow or PyTorch
 - Develop projects in natural language processing or computer vision
 - Enhance environment visualization capabilities
