@@ -10,7 +10,7 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
 
 ### [Project 1: Gymnasium Environment Explorer](./gymnasium-environment-explorer)
 - A GUI application for exploring and interacting with Gymnasium (formerly OpenAI Gym) environments
-- Technologies used: Python, Tkinter, Gymnasium, Matplotlib
+- Technologies used: Python, Tkinter, Gymnasium, Matplotlib, NumPy
 - Features:
   - Real-time search functionality for Gymnasium environments
   - Detailed display of environment specifications, including action space, observation space, and reward range
@@ -19,6 +19,8 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
   - Support for no-op actions in playable environments
   - Random agent functionality with customizable run options
   - Visualization of observation spaces for fundamental Gymnasium spaces and composite spaces
+  - Q-Learning agent implementation with customizable parameters
+  - Visualization of Q-Learning progress and Q-table
 - Learned about:
   - Reinforcement learning environments and their structure
   - GUI development with Tkinter
@@ -28,6 +30,7 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
   - Using Gymnasium's play utility for environment interaction
   - Implementing and running random agents in various modes
   - Data visualization techniques for various types of observation spaces
+  - Q-Learning algorithm implementation and analysis
 
 ### [Project 2: Name of Second Project] (Coming Soon)
 - Brief description of what this project will demonstrate
@@ -39,21 +42,20 @@ This repository serves as a portfolio of my work in AI and machine learning. Eac
 - Gymnasium (formerly OpenAI Gym)
 - Tkinter (GUI Development)
 - Matplotlib (Data Visualization)
+- NumPy (Numerical Operations)
 - Object-Oriented Programming
 - Event-Driven Programming
 - Data Structure Manipulation
 - Real-time Search Implementation
 - User Interface Design
-- Reinforcement Learning Concepts
+- Reinforcement Learning Concepts and Algorithms (Random Agent, Q-Learning)
 - Data Analysis
-- Machine Learning Algorithms
-- Random Agent Implementation
 - Custom Dialog Creation
 - User Input Handling and Validation
 - Software Documentation
 
 ## Future Learning Goals
-- Implement more sophisticated AI agents (e.g., Q-learning, policy gradients, baselines) to interact with Gymnasium environments
+- Implement more sophisticated AI agents (e.g., policy gradients, baselines, actor-critic methods)
 - Explore deep learning frameworks like TensorFlow or PyTorch
 - Develop projects in natural language processing or computer vision
 - Enhance environment visualization capabilities
